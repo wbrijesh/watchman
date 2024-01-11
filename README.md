@@ -9,7 +9,15 @@ To install watchman you need go installed on your computer
 git clone git@brijesh.dev:watchman.git
 cd watchman
 go build .
-cp watchman /usr/bin
+sudo cp watchman /usr/bin
 ```
 
 If you don't have go installed, then install from [official website](https://go.dev/dl/)
+
+### Todo
+
+- [x] Take CLI inputs
+- [x] Create a recursive list of subdirectories and files
+- [x] Watch for changes to files or subdirectories
+- [ ] Watch for changes in file contents
+- [x] Run command when change is detected
