@@ -8,7 +8,7 @@ import (
 	"watchman/utils"
 )
 
-func BuildFileTree(directory string) []string {
+func buildFileTree(directory string) []string {
 	var files []string
 
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
@@ -39,11 +39,11 @@ func areSlicesEqual(slice1, slice2 []string) bool {
 	return true
 }
 
-func WatchFileTree(directory string) {
+func WatchFileTree(directory string, command string) {
 	fileTreeHistory := make([][]string, 0)
 
-	utils.RunEvery(5*time.Second, func(t time.Time) {
-		fileTreeHistory = append(fileTreeHistory, BuildFileTree(directory))
+	utils.RunEvery(time.Second, func(t time.Time) {
+		fileTreeHistory = append(fileTreeHistory, buildFileTree(directory))
 
 		if len(fileTreeHistory) > 2 {
 			fileTreeHistory = fileTreeHistory[1:]
@@ -51,7 +51,8 @@ func WatchFileTree(directory string) {
 
 		if len(fileTreeHistory) > 1 {
 			if areSlicesEqual(fileTreeHistory[0], fileTreeHistory[1]) == false {
-				fmt.Println("Changed")
+			    output := utils.Cmd(command)
+			    fmt.Println(string(output))
 			}
 		}
 	})
