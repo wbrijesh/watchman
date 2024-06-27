@@ -44,6 +44,10 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			internal.GetProjectByID(w, r, db_connection)
+		case http.MethodPut:
+			internal.UpdateProject(w, r, db_connection)
+		case http.MethodDelete:
+			internal.DeleteProject(w, r, db_connection)
 		default:
 			utils.Method_Not_Allowed_Handler(w, r)
 		}
@@ -55,10 +59,6 @@ func main() {
 			internal.CreateProject(w, r, db_connection)
 		case http.MethodGet:
 			internal.ListProjects(w, r, db_connection)
-		case http.MethodPut:
-			internal.UpdateProject(w, r, db_connection)
-		case http.MethodDelete:
-			internal.DeleteProject(w, r, db_connection)
 		default:
 			utils.Method_Not_Allowed_Handler(w, r)
 		}
@@ -119,8 +119,9 @@ func main() {
 
 	fmt.Println("Starting server on " + port)
 	log.Fatal(http.ListenAndServe(":"+port,
-		middleware.RequestIDMiddleware(
-			middleware.Ratelimit(
-				multiplexer,
-			))))
+		middleware.CorsMiddleware(
+			middleware.RequestIDMiddleware(
+				middleware.Ratelimit(
+					multiplexer,
+				)))))
 }

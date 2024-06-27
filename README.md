@@ -39,13 +39,13 @@ curl -X POST http://127.0.0.1:4000/project -d '{"ID": "1"}'
 #### 4. Update Project
 
 ```sh
-curl -X PUT http://127.0.0.1:4000/projects -d '{"ID": "1", "Name": "Project 1 Updated"}'
+curl -X PUT http://127.0.0.1:4000/project -d '{"ID": "1", "Name": "Project 1 Updated"}'
 ```
 
 #### 5. Delete Project
 
 ```sh
-curl -X DELETE http://127.0.0.1:4000/projects -d '{"ID": "1"}'
+curl -X DELETE http://127.0.0.1:4000/project -d '{"ID": "1"}'
 ```
 
 ### Log Management API

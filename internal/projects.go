@@ -105,24 +105,17 @@ func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
 		return
 	}
 
-	var project schema.Project
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&project)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Error decoding project data: %v", err)
-		return
-	}
+	projectID := r.URL.Query().Get("id")
 
-	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", project.ID)
+	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
 	var projectByID schema.Project
-	err = row.Scan(&projectByID.ID, &projectByID.Name)
+	err := row.Scan(&projectByID.ID, &projectByID.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error querying database: %v", err)
