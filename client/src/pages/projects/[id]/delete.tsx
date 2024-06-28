@@ -1,6 +1,7 @@
 import { DeleteProject, GetProjectById, ListProjects } from "@/api/projects";
 import { PrimaryButton } from "@/components/Button";
 import MainLayout from "@/components/MainLayout";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -27,6 +28,9 @@ const ProjectDeletePage = () => {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Delete Project | Watchman</title>
+      </Head>
       <div className="mb-4 flex justify-between items-center uppercase">
         {project?.data?.name && (
           <h1 className="text-xl font-medium">{project.data.name}</h1>

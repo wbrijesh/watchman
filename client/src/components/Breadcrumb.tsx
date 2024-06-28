@@ -20,17 +20,20 @@ const Breadcrumb = () => {
             </>
           )}
           {/* if path contains only one slash, it means page is project details */}
-          {(router.pathname.match(new RegExp("/", "g")) || []).length == 2 && (
-            <>
-              <p>/</p>
-              <Link
-                className="hover:underline"
-                href={`/projects/${router.query.id}`}
-              >
-                Project Details
-              </Link>
-            </>
-          )}
+          {(router.pathname.match(new RegExp("/", "g")) || []).length == 2 &&
+            !router.pathname.includes("/create") &&
+            !router.pathname.includes("/update") &&
+            !router.pathname.includes("/delete") && (
+              <>
+                <p>/</p>
+                <Link
+                  className="hover:underline"
+                  href={`/projects/${router.query.id}`}
+                >
+                  Project Details
+                </Link>
+              </>
+            )}
         </div>
       )}
     </div>

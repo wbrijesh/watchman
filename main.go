@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"watchman/internal"
 	"watchman/middleware"
 	"watchman/utils"
@@ -28,7 +29,7 @@ func init() {
 }
 
 func main() {
-	port := utils.Load_ENV("PORT")
+	config := utils.Read_Config()
 
 	db_connection, err := sql.Open("sqlite3", "./watchman.db")
 	if err != nil {
@@ -117,8 +118,8 @@ func main() {
 		}
 	})
 
-	fmt.Println("Starting server on " + port)
-	log.Fatal(http.ListenAndServe(":"+port,
+	fmt.Println("Starting server on " + strconv.Itoa(config.Port))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port),
 		middleware.CorsMiddleware(
 			middleware.RequestIDMiddleware(
 				middleware.Ratelimit(

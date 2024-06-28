@@ -1,6 +1,7 @@
 import { GetProjectById, UpdateProject } from "@/api/projects";
 import { PrimaryButton } from "@/components/Button";
 import MainLayout from "@/components/MainLayout";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -34,6 +35,9 @@ const UpdateProjectPage = () => {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Update Project | Watchman</title>
+      </Head>
       <h1 className="text-xl font-medium">Update Project</h1>
 
       <form onSubmit={formSubmit} className="my-4 flex flex-col gap-4">

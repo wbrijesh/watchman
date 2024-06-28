@@ -2,6 +2,7 @@ import { ListProjects } from "@/api/projects";
 import { PrimaryButton } from "@/components/Button";
 import MainLayout from "@/components/MainLayout";
 import Table from "@/components/table";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -17,6 +18,9 @@ const ProjectsHomePage = () => {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Projects | Watchman</title>
+      </Head>
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-xl font-medium">Projects</h1>
         <PrimaryButton

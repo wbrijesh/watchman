@@ -1,3 +1,4 @@
 .env
 watchman.db
 todo.txt
+.DS_Store

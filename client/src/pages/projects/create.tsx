@@ -1,6 +1,7 @@
 import { CreatePorject } from "@/api/projects";
 import { PrimaryButton } from "@/components/Button";
 import MainLayout from "@/components/MainLayout";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -23,6 +24,9 @@ const CreateProjectPage = () => {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Create Projects | Watchman</title>
+      </Head>
       <h1 className="text-xl font-medium">Create Project</h1>
 
       <form onSubmit={formSubmit} className="my-4 flex flex-col gap-4">
