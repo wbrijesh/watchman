@@ -63,13 +63,103 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+// func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+// 	if r.Method != http.MethodGet {
+// 		w.WriteHeader(http.StatusMethodNotAllowed)
+// 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
+// 		return
+// 	}
+//
+// 	projectID := r.URL.Query().Get("id")
+//
+// 	if projectID == "" {
+// 		rows, err := db.Query("SELECT * FROM Projects")
+// 		if err != nil {
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			fmt.Fprintf(w, "Error querying database: %v", err)
+// 			return
+// 		}
+// 		defer rows.Close()
+// 		var projects []schema.Project
+// 		for rows.Next() {
+// 			var project schema.Project
+// 			err := rows.Scan(&project.ID, &project.Name)
+// 			if err != nil {
+// 				w.WriteHeader(http.StatusInternalServerError)
+// 				fmt.Fprintf(w, "Error scanning row: %v", err)
+// 				return
+// 			}
+// 			projects = append(projects, project)
+// 		}
+// 		response := schema.Response_Type{
+// 			Status:    "OK",
+// 			Message:   "Projects retrieved successfully",
+// 			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
+// 			Data:      projects,
+// 		}
+// 		w.Header().Set("Content-Type", "application/json")
+// 		err = json.NewEncoder(w).Encode(response)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		}
+// 	} else {
+// 		row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
+// 		var projectByID schema.Project
+// 		err := row.Scan(&projectByID.ID, &projectByID.Name)
+// 		if err != nil {
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			fmt.Fprintf(w, "Error querying database: %v", err)
+// 			return
+// 		}
+// 		response := schema.Response_Type{
+// 			Status:    "OK",
+// 			Message:   "Project retrieved successfully",
+// 			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
+// 			Data:      projectByID,
+// 		}
+// 		w.Header().Set("Content-Type", "application/json")
+// 		err = json.NewEncoder(w).Encode(response)
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		}
+// 	}
+// }
+
+// internal.GetProjectByID(w, r, db_connection, projectID)
+
+func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
 		return
 	}
+	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
+	var projectByID schema.Project
+	err := row.Scan(&projectByID.ID, &projectByID.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error querying database: %v", err)
+		return
+	}
+	response := schema.Response_Type{
+		Status:    "OK",
+		Message:   "Project retrieved successfully",
+		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
+		Data:      projectByID,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 
+func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Method %s not allowed", r.Method)
+		return
+	}
 	rows, err := db.Query("SELECT * FROM Projects")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -77,7 +167,6 @@ func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 	defer rows.Close()
-
 	var projects []schema.Project
 	for rows.Next() {
 		var project schema.Project
@@ -89,14 +178,12 @@ func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 		projects = append(projects, project)
 	}
-
 	response := schema.Response_Type{
 		Status:    "OK",
 		Message:   "Projects retrieved successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
 		Data:      projects,
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
@@ -104,39 +191,7 @@ func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
-
-	projectID := r.URL.Query().Get("id")
-
-	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
-	var projectByID schema.Project
-	err := row.Scan(&projectByID.ID, &projectByID.Name)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error querying database: %v", err)
-		return
-	}
-
-	response := schema.Response_Type{
-		Status:    "OK",
-		Message:   "Project retrieved successfully",
-		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-		Data:      projectByID,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func UpdateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
 	if r.Method != http.MethodPut {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
@@ -152,7 +207,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	stmt, err := db.Prepare("UPDATE Projects SET Name = ? WHERE ID = ?")
+	stmt, err := db.Prepare("UPDATE Projects SET Name = ?, ID = ? WHERE ID = ?")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error preparing SQL statement: %v", err)
@@ -160,7 +215,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(project.Name, project.ID)
+	_, err = stmt.Exec(project.Name, project.ID, projectID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error updating project in database: %v", err)
@@ -180,19 +235,10 @@ func UpdateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func DeleteProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func DeleteProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
 	if r.Method != http.MethodDelete {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
-
-	var project schema.Project
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&project)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Error decoding project data: %v", err)
 		return
 	}
 
@@ -204,7 +250,7 @@ func DeleteProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(project.ID)
+	_, err = stmt.Exec(projectID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error deleting project from database: %v", err)

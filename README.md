@@ -21,7 +21,7 @@ Maybe someday I'll get around to adding auth, but even then, this is best used w
 #### 1. Create Project
 
 ```sh
-curl -X POST http://127.0.0.1:4000/projects -d '{"Name": "Project 1"}'
+curl -X POST http://127.0.0.1:4000/projects -d '{"name": "Project 1"}'
 ```
 
 #### 2. List Projects
@@ -33,19 +33,19 @@ curl http://127.0.0.1:4000/projects
 #### 3. Get Project By ID
 
 ```sh
-curl -X POST http://127.0.0.1:4000/project -d '{"ID": "1"}'
+curl -X GET http://127.0.0.1:4000/projects/{id}
 ```
 
 #### 4. Update Project
 
 ```sh
-curl -X PUT http://127.0.0.1:4000/project -d '{"ID": "1", "Name": "Project 1 Updated"}'
+curl -X PUT http://127.0.0.1:4000/projects/{id} -d '{"name": "Updated Project Name"}'
 ```
 
 #### 5. Delete Project
 
 ```sh
-curl -X DELETE http://127.0.0.1:4000/project -d '{"ID": "1"}'
+curl -X DELETE http://127.0.0.1:4000/projects/{id}
 ```
 
 ### Log Management API

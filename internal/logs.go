@@ -63,6 +63,48 @@ func CreateLog(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
+func BatchInsertLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Method %s not allowed", r.Method)
+		return
+	}
+	var logs []schema.Log
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&logs)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Error decoding log data: %v", err)
+		return
+	}
+	stmt, err := db.Prepare("INSERT INTO Logs (Time, Level, Message, Subject, UserID, ProjectID) VALUES (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error preparing SQL statement: %v", err)
+		return
+	}
+	defer stmt.Close()
+	for _, log := range logs {
+		log.Time = int32(time.Now().Unix())
+		_, err = stmt.Exec(log.Time, log.Level, log.Message, log.Subject, log.UserID, log.ProjectID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "Error inserting log into database: %v", err)
+			return
+		}
+	}
+	response := schema.Response_Type{
+		Status:    "OK",
+		Message:   "Logs created successfully",
+		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func GetAllLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
