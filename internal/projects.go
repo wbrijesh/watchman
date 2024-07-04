@@ -9,18 +9,8 @@ import (
 	"watchman/utils"
 )
 
-// CREATE: INSERT INTO Projects (ID, Name) VALUES (?, ?)
-// READ: SELECT * FROM Projects
-// READ WITH ID: SELECT * FROM Projects WHERE ID = ?
-// UPDATE: UPDATE Projects SET Name = ? WHERE ID = ?
-// DELETE: DELETE FROM Projects WHERE ID = ?
-
 func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodPost)
 
 	var project schema.Project
 	decoder := json.NewDecoder(r.Body)
@@ -63,76 +53,9 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-// func ListProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-// 	if r.Method != http.MethodGet {
-// 		w.WriteHeader(http.StatusMethodNotAllowed)
-// 		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-// 		return
-// 	}
-//
-// 	projectID := r.URL.Query().Get("id")
-//
-// 	if projectID == "" {
-// 		rows, err := db.Query("SELECT * FROM Projects")
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			fmt.Fprintf(w, "Error querying database: %v", err)
-// 			return
-// 		}
-// 		defer rows.Close()
-// 		var projects []schema.Project
-// 		for rows.Next() {
-// 			var project schema.Project
-// 			err := rows.Scan(&project.ID, &project.Name)
-// 			if err != nil {
-// 				w.WriteHeader(http.StatusInternalServerError)
-// 				fmt.Fprintf(w, "Error scanning row: %v", err)
-// 				return
-// 			}
-// 			projects = append(projects, project)
-// 		}
-// 		response := schema.Response_Type{
-// 			Status:    "OK",
-// 			Message:   "Projects retrieved successfully",
-// 			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-// 			Data:      projects,
-// 		}
-// 		w.Header().Set("Content-Type", "application/json")
-// 		err = json.NewEncoder(w).Encode(response)
-// 		if err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		}
-// 	} else {
-// 		row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
-// 		var projectByID schema.Project
-// 		err := row.Scan(&projectByID.ID, &projectByID.Name)
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			fmt.Fprintf(w, "Error querying database: %v", err)
-// 			return
-// 		}
-// 		response := schema.Response_Type{
-// 			Status:    "OK",
-// 			Message:   "Project retrieved successfully",
-// 			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-// 			Data:      projectByID,
-// 		}
-// 		w.Header().Set("Content-Type", "application/json")
-// 		err = json.NewEncoder(w).Encode(response)
-// 		if err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		}
-// 	}
-// }
-
-// internal.GetProjectByID(w, r, db_connection, projectID)
-
 func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodGet)
+
 	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
 	var projectByID schema.Project
 	err := row.Scan(&projectByID.ID, &projectByID.Name)
@@ -155,11 +78,8 @@ func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectI
 }
 
 func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodGet)
+
 	rows, err := db.Query("SELECT * FROM Projects")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -192,11 +112,7 @@ func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
-	if r.Method != http.MethodPut {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodPut)
 
 	var project schema.Project
 	decoder := json.NewDecoder(r.Body)
@@ -236,11 +152,7 @@ func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, proje
 }
 
 func DeleteProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
-	if r.Method != http.MethodDelete {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodDelete)
 
 	stmt, err := db.Prepare("DELETE FROM Projects WHERE ID = ?")
 	if err != nil {

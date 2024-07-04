@@ -7,14 +7,12 @@ import (
 	"net/http"
 	"time"
 	"watchman/schema"
+	"watchman/utils"
 )
 
 func BatchInsertLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodPost)
+
 	var logs []schema.Log
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&logs)
@@ -52,11 +50,8 @@ func BatchInsertLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodGet)
+
 	projectID := r.URL.Query().Get("project_id")
 	userID := r.URL.Query().Get("user_id")
 	startTime := r.URL.Query().Get("start_time")
@@ -122,11 +117,8 @@ func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 // DeleteLogs function similar to above GetLogs that takes in the same parameters and deletes the logs from the database
 func DeleteLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	if r.Method != http.MethodDelete {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, "Method %s not allowed", r.Method)
-		return
-	}
+	utils.HandleMethodNotAllowed(w, r, http.MethodDelete)
+
 	projectID := r.URL.Query().Get("project_id")
 	userID := r.URL.Query().Get("user_id")
 	startTime := r.URL.Query().Get("start_time")
