@@ -52,66 +52,36 @@ curl -X DELETE http://127.0.0.1:4000/projects/{id}
 
 #### TOC
 
-- [1. Create a New Log](#1-create-a-new-log)
-- [2. Get All Logs](#2-get-all-logs)
-- [3. Get Logs by Project ID](#3-get-logs-by-project-id)
-- [4. Get Logs by User ID](#4-get-logs-by-user-id)
-- [5. Get Logs in Time Range](#5-get-logs-in-time-range)
-- [6. Get Logs by Level](#6-get-logs-by-level)
-- [7. Delete Logs by Project ID](#7-delete-logs-by-project-id)
-- [8. Delete Logs by User ID](#8-delete-logs-by-user-id)
-- [9. Delete Logs by Time Range](#9-delete-logs-by-time-range)
+- [1. Create Logs (Bulk)](#1-create-logs-bulk)
+- [2. List Logs](#2-list-logs)
+- [3. Delete Logs](#3-delete-logs)
 
-#### 1. Create a New Log
+#### 1. Create Logs (Bulk)
 
 ```sh
-curl -X POST http://127.0.0.1:4000/logs -H "Content-Type: application/json" -d '{"level": "INFO", "message": "Log message", "subject": "Log subject", "user_id": "user1", "project_id": "project1"}'
+curl -X POST http://127.0.0.1:4000/logs -d '[{"time": 1615760000, "level": "info", "message": "this is a test log", "subject": "test", "user_id": "1", "project_id": "1"}]'
 ```
 
-#### 2. Get All Logs
+#### 2. List Logs
 
 ```sh
-curl -X GET http://127.0.0.1:4000/logs
+curl http://127.0.0.1:4000/logs?project_id=1
 ```
 
-#### 3. Get Logs by Project ID
+Or you add more query params to filter the logs
 
 ```sh
-curl -X GET 'http://127.0.0.1:4000/logs/project?project_id=project1'
+curl http://127.0.0.1:4000/logs?project_id=1&user_id=1&log_level=info&start_time=1615760000&end_time=1615760000
 ```
 
-#### 4. Get Logs by User ID
+#### 3. Delete Logs
 
 ```sh
-curl -X GET 'http://127.0.0.1:4000/logs/user?user_id=user1'
+curl -X DELETE http://127.0.0.1:4000/logs?project_id=1
 ```
 
-#### 5. Get Logs in Time Range
+Or you can add more query params to filter the logs
 
 ```sh
-curl -X GET 'http://127.0.0.1:4000/logs/time?start_time=TIMESTAMP&end_time=TIMESTAMP'
-```
-
-#### 6. Get Logs by Level
-
-```sh
-curl -X GET 'http://127.0.0.1:4000/logs/level?level=INFO'
-```
-
-#### 7. Delete Logs by Project ID
-
-```sh
-curl -X DELETE 'http://127.0.0.1:4000/logs/project?project_id=project1'
-```
-
-#### 8. Delete Logs by User ID
-
-```sh
-curl -X DELETE 'http://127.0.0.1:4000/logs/user?user_id=user1'
-```
-
-#### 9. Delete Logs by Time Range
-
-```sh
-curl -X DELETE 'http://127.0.0.1:4000/logs/time?start_time=TIMESTAMP&end_time=TIMESTAMP'
+curl -X DELETE http://127.0.0.1:4000/logs?project_id=1&user_id=2
 ```

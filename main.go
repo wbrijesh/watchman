@@ -1,21 +1,3 @@
-// projects api endpoints should be:
-// 1. GET /projects
-// 2. POST /projects
-// 3. GET /projects/{id}
-// 4. PUT /projects/{id}
-// 5. DELETE /projects/{id}
-// logs api endpoints should be restful but also factor in query parameters
-// 1. GET /logs
-// 2 GET /logs?project_id={id}
-// 3. GET /logs?user_id={id}
-// 4. GET /logs?start_time={timestamp}&end_time={timestamp}
-// 5. GET /logs?level={level}
-// 6. POST /logs (this is for batch insertion of logs)
-// 7. DELETE /logs?project_id={id}
-// 8. DELETE /logs?user_id={id}
-// 9. DELETE /logs?start_time={timestamp}&end_time={timestamp}
-// 10. DELETE /logs?level={level}
-
 package main
 
 import (
@@ -108,60 +90,11 @@ func main() {
 	multiplexer.HandleFunc("/logs", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			internal.CreateLog(w, r, db_connection)
-		case http.MethodGet:
-			internal.GetAllLogs(w, r, db_connection)
-		default:
-			utils.Method_Not_Allowed_Handler(w, r)
-		}
-	})
-
-	multiplexer.HandleFunc("/logs/batch-insert", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
 			internal.BatchInsertLogs(w, r, db_connection)
-		default:
-			utils.Method_Not_Allowed_Handler(w, r)
-		}
-	})
-
-	multiplexer.HandleFunc("/logs/project", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
 		case http.MethodGet:
-			internal.GetLogsByProjectID(w, r, db_connection)
-		// case http.MethodDelete:
-		// 	internal.DeleteLogsByProjectID(w, r, db_c nnection)
-		default:
-			utils.Method_Not_Allowed_Handler(w, r)
-		}
-	})
-
-	multiplexer.HandleFunc("/logs/user", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			internal.GetLogsByUserID(w, r, db_connection)
-		// case http.MethodDelete:
-		// 	internal.DeleteLogsByUserID(w, r, db_connection)
-		default:
-			utils.Method_Not_Allowed_Handler(w, r)
-		}
-	})
-
-	multiplexer.HandleFunc("/logs/time", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			internal.GetLogsInTimeRange(w, r, db_connection)
-		// case http.MethodDelete:
-		// 	internal.DeleteLogsByTimeRange(w, r, db_connection)
-		default:
-			utils.Method_Not_Allowed_Handler(w, r)
-		}
-	})
-
-	multiplexer.HandleFunc("/logs/level", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			internal.GetLogsByLevel(w, r, db_connection)
+			internal.GetLogs(w, r, db_connection)
+		case http.MethodDelete:
+			internal.DeleteLogs(w, r, db_connection)
 		default:
 			utils.Method_Not_Allowed_Handler(w, r)
 		}
