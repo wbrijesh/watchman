@@ -25,11 +25,6 @@ var (
 	mu       sync.Mutex
 )
 
-// Run cleanup function in a background go routine
-func init() {
-	go cleanupVisitors()
-}
-
 // Get the visitor from the visitors map based on the IP address
 func getVisitor(ip string) *rate.Limiter {
 	mu.Lock()
@@ -49,7 +44,7 @@ func getVisitor(ip string) *rate.Limiter {
 }
 
 // Delete the visitor if it was last seen over 3 minutes ago
-func cleanupVisitors() {
+func CleanupVisitors() {
 	for {
 		time.Sleep(time.Minute)
 

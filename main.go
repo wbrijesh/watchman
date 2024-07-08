@@ -29,6 +29,8 @@ func init() {
 			log.Fatal(RED + "Error: " + env_var + " not found in .env file" + RESET_COLOUR)
 		}
 	}
+
+	go middleware.CleanupVisitors()
 }
 
 func main() {
@@ -100,7 +102,7 @@ func main() {
 		}
 	})
 
-	fmt.Println("Starting server on " + strconv.Itoa(config.Port))
+	fmt.Println("Starting server on port " + strconv.Itoa(config.Port))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port),
 		middleware.CorsMiddleware(
 			middleware.RequestIDMiddleware(

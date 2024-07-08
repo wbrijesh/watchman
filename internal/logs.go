@@ -16,37 +16,26 @@ func BatchInsertLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var logs []schema.Log
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&logs)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Error decoding log data: %v", err)
-		return
-	}
+	utils.HandleError(w, r, http.StatusBadRequest, "Error decoding JSON: ", err)
+
+	fmt.Println("Logs: ", logs)
+
 	stmt, err := db.Prepare("INSERT INTO Logs (Time, Level, Message, Subject, UserID, ProjectID) VALUES (?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error preparing SQL statement: %v", err)
-		return
-	}
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error preparing statement: ", err)
 	defer stmt.Close()
+
 	for _, log := range logs {
 		log.Time = int32(time.Now().Unix())
 		_, err = stmt.Exec(log.Time, log.Level, log.Message, log.Subject, log.UserID, log.ProjectID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Error inserting log into database: %v", err)
-			return
-		}
+		utils.HandleError(w, r, http.StatusInternalServerError, "Error inserting into database: ", err)
 	}
+
 	response := schema.Response_Type{
 		Status:    "OK",
 		Message:   "Logs created successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
 	}
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	utils.SendResponse(w, r, response)
 }
 
 func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -83,22 +72,14 @@ func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	rows, err := db.Query(query)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error querying database: %v", err)
-		return
-	}
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error querying database: ", err)
 	defer rows.Close()
 
 	var logs []schema.Log
 	for rows.Next() {
 		var log schema.Log
 		err = rows.Scan(&log.Time, &log.Level, &log.Message, &log.Subject, &log.UserID, &log.ProjectID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Error scanning row: %v", err)
-			return
-		}
+		utils.HandleError(w, r, http.StatusInternalServerError, "Error scanning row: ", err)
 		logs = append(logs, log)
 	}
 
@@ -115,7 +96,6 @@ func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-// DeleteLogs function similar to above GetLogs that takes in the same parameters and deletes the logs from the database
 func DeleteLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodDelete)
 
@@ -142,28 +122,23 @@ func DeleteLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		query += "Level = '" + level + "' AND "
 	}
 
-	query = query[:len(query)-5]
+	if projectID != "" || userID != "" || startTime != "" || endTime != "" || level != "" {
+		query = query[:len(query)-5]
+	} else {
+		query = query[:len(query)-7]
+	}
+
 	stmt, err := db.Prepare(query)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error preparing SQL statement: %v", err)
-		return
-	}
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error preparing statement: ", err)
 	defer stmt.Close()
+
 	_, err = stmt.Exec()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error deleting logs from database: %v", err)
-		return
-	}
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
+
 	response := schema.Response_Type{
 		Status:    "OK",
 		Message:   "Logs deleted successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
 	}
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	utils.SendResponse(w, r, response)
 }
