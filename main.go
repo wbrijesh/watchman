@@ -16,23 +16,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const (
-	RED          = "\033[31m"
-	RESET_COLOUR = "\033[0m"
-)
-
-func init() {
-	env_vars := []string{"PORT"}
-
-	for _, env_var := range env_vars {
-		if !utils.Verify_ENV_Exists(env_var) {
-			log.Fatal(RED + "Error: " + env_var + " not found in .env file" + RESET_COLOUR)
-		}
-	}
-
-	go middleware.CleanupVisitors()
-}
-
 func main() {
 	config := utils.Read_Config()
 
@@ -66,7 +49,6 @@ func main() {
 				Status:    "ERROR",
 				Message:   "Project ID not provided",
 				RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-				Data:      nil,
 			}
 
 			w.WriteHeader(http.StatusBadRequest)
@@ -102,11 +84,14 @@ func main() {
 		}
 	})
 
+	multiplexer.HandleFunc("/login", internal.AdminLogin)
+
 	fmt.Println("Starting server on port " + strconv.Itoa(config.Port))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port),
 		middleware.CorsMiddleware(
 			middleware.RequestIDMiddleware(
 				middleware.Ratelimit(
+					config,
 					multiplexer,
 				)))))
 }

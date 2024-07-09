@@ -1,4 +1,4 @@
-.PHONY: schema-generate
+.PHONY: db-schema run-server run-frontend
 
 db-schema:
 	if [ -f schema/schema.sql ]; then rm schema/schema.sql; fi;

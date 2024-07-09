@@ -13,3 +13,10 @@ type Log struct {
 	ProjectID string `json:"project_id"`
 	Time      int32  `json:"time"`
 }
+
+type ProjectKey struct {
+	ProjectID string `json:"project_id"`
+	AccessKey string `json:"access_key"`
+	SecretKey string `json:"secret_key"`
+	Expiry    int32  `json:"expiry"`
+}
