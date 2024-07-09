@@ -1,1 +1,9 @@
 port: 4000
+
+admin:
+  username: "admin"
+  password: "admin"
+
+jwt_key: "my-key"
+
+rate_limit_req_per_sec: 5

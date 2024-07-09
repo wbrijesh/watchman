@@ -26,13 +26,13 @@ var (
 )
 
 // Get the visitor from the visitors map based on the IP address
-func getVisitor(ip string) *rate.Limiter {
+func getVisitor(ip string, config schema.ConfigType) *rate.Limiter {
 	mu.Lock()
 	defer mu.Unlock()
 
 	v, exists := visitors[ip]
 	if !exists {
-		limiter := rate.NewLimiter(1, 3)
+		limiter := rate.NewLimiter(1, config.RateLimitRequestsPerSecond)
 		// Include the current time when creating a new visitor
 		visitors[ip] = &visitor{limiter, time.Now()}
 		return limiter
@@ -58,7 +58,7 @@ func CleanupVisitors() {
 	}
 }
 
-func Ratelimit(next http.Handler) http.Handler {
+func Ratelimit(config schema.ConfigType, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
@@ -67,7 +67,7 @@ func Ratelimit(next http.Handler) http.Handler {
 			return
 		}
 
-		limiter := getVisitor(ip)
+		limiter := getVisitor(ip, config)
 		if !limiter.Allow() {
 			response := schema.Response_Type{
 				Status:    "ERROR",
