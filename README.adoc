@@ -1,98 +1,33 @@
-
 = Watchman
 
 == Overview
 
-Watchman is a hacky small scale logging tool for my personal projects kind of like that art you made in kindergarden (awesome, but not exactly museum worthy).
+Watchman is a lightweight logging service designed for personal projects and small teams. 
+It offers a simpler alternative to complex open-source solutions like ELK stack, Prometheus, Grafana, etc. 
+and aims to be easy to use and consume as little resources as possible.
 
-i wrote this purely for my own amusement, since it doesn't even have basic auth, this project is strictly a "don't try this at home" situation.
+I am writing Watchman to meet my own needs, and it is currently under development. I plan on releasing a relatively stable version soon.
 
-Maybe someday I'll get around to adding auth, but even then, this is best used with toy projects.
 
-=== Project Management API
+== Current limitations:
 
-==== TOC
+* Incomplete client (no authentication)
+* Missing log file rotation and log expiration
 
-* <<1-create-project,1. Create Project>>
-* <<2-list-projects,2. List Projects>>
-* <<3-get-project-by-id,3. Get Project By ID>>
-* <<4-update-project,4. Update Project>>
-* <<5-delete-project,5. Delete Project>>
+== System Requirements
 
-==== 1. Create Project
+Watchman has a small footprint and should run on most systems, but here are suggested requirements:
 
-[source,sh]
-----
-curl -X POST http://127.0.0.1:4000/projects -d '{"name": "Project 1"}'
-----
+* 256 MB Memory 
+* 1 vCPU
+* 500 MB Free Disk Space
+* Any GNU/Linux distribution with systemd
+* Go lang 1.22 or higher
+* sqlite3 3.46.0 or higher
 
-==== 2. List Projects
+> Above requirements assume that you are only running watchman's server on the server and running frontend on a seperate server.
 
-[source,sh]
-----
-curl http://127.0.0.1:4000/projects
-----
+=== API Documentation
 
-==== 3. Get Project By ID
+API Endpoints along with usage examples are documented in link:./API.adoc[API.adoc] file.
 
-[source,sh]
-----
-curl -X GET http://127.0.0.1:4000/projects/{id}
-----
-
-==== 4. Update Project
-
-[source,sh]
-----
-curl -X PUT http://127.0.0.1:4000/projects/{id} -d '{"name": "Updated Project Name"}'
-----
-
-==== 5. Delete Project
-
-[source,sh]
-----
-curl -X DELETE http://127.0.0.1:4000/projects/{id}
-----
-
-=== Log Management API
-
-==== TOC
-
-* <<1-create-logs-bulk,1. Create Logs (Bulk)>>
-* <<2-list-logs,2. List Logs>>
-* <<3-delete-logs,3. Delete Logs>>
-
-==== 1. Create Logs (Bulk)
-
-[source,sh]
-----
-curl -X POST http://127.0.0.1:4000/logs -d '[{"time": 1615760000, "level": "info", "message": "this is a test log", "subject": "test", "user_id": "1", "project_id": "1"}]'
-----
-
-==== 2. List Logs
-
-[source,sh]
-----
-curl http://127.0.0.1:4000/logs?project_id=1
-----
-
-Or you add more query params to filter the logs
-
-[source,sh]
-----
-curl http://127.0.0.1:4000/logs?project_id=1&user_id=1&log_level=info&start_time=1615760000&end_time=1615760000
-----
-
-==== 3. Delete Logs
-
-[source,sh]
-----
-curl -X DELETE http://127.0.0.1:4000/logs?project_id=1
-----
-
-Or you can add more query params to filter the logs
-
-[source,sh]
-----
-curl -X DELETE http://127.0.0.1:4000/logs?project_id=1&user_id=2
-----
