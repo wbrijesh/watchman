@@ -17,26 +17,26 @@ import (
 )
 
 func main() {
-	config := utils.Read_Config()
+	config := utils.ReadConfig()
 
-	db_connection, err := sql.Open("sqlite3", "./watchman.db")
+	dbConnection, err := sql.Open("sqlite3", "./watchman.db")
 	if err != nil {
 		panic(err)
 	}
-	defer db_connection.Close()
+	defer dbConnection.Close()
 
 	multiplexer := http.NewServeMux()
 
-	multiplexer.HandleFunc("/health", utils.Health_Check_Handler)
+	multiplexer.HandleFunc("/health", utils.HealthCheckHandler)
 
 	multiplexer.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			internal.CreateProject(w, r, db_connection)
+			internal.CreateProject(w, r, dbConnection)
 		case http.MethodGet:
-			internal.ListAllProjects(w, r, db_connection)
+			internal.ListAllProjects(w, r, dbConnection)
 		default:
-			utils.Method_Not_Allowed_Handler(w, r)
+			utils.MethodNotAllowedHandler(w, r)
 		}
 	})
 
@@ -45,7 +45,7 @@ func main() {
 		projectID := url
 
 		if projectID == "" {
-			response := schema.Response_Type{
+			response := schema.ResponseType{
 				Status:    "ERROR",
 				Message:   "Project ID not provided",
 				RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -61,26 +61,26 @@ func main() {
 
 		switch r.Method {
 		case http.MethodGet:
-			internal.GetProjectByID(w, r, db_connection, projectID)
+			internal.GetProjectByID(w, r, dbConnection, projectID)
 		case http.MethodPut:
-			internal.UpdateProjectByID(w, r, db_connection, projectID)
+			internal.UpdateProjectByID(w, r, dbConnection, projectID)
 		case http.MethodDelete:
-			internal.DeleteProjectByID(w, r, db_connection, projectID)
+			internal.DeleteProjectByID(w, r, dbConnection, projectID)
 		default:
-			utils.Method_Not_Allowed_Handler(w, r)
+			utils.MethodNotAllowedHandler(w, r)
 		}
 	})
 
 	multiplexer.HandleFunc("/logs", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			internal.BatchInsertLogs(w, r, db_connection)
+			internal.BatchInsertLogs(w, r, dbConnection)
 		case http.MethodGet:
-			internal.GetLogs(w, r, db_connection)
+			internal.GetLogs(w, r, dbConnection)
 		case http.MethodDelete:
-			internal.DeleteLogs(w, r, db_connection)
+			internal.DeleteLogs(w, r, dbConnection)
 		default:
-			utils.Method_Not_Allowed_Handler(w, r)
+			utils.MethodNotAllowedHandler(w, r)
 		}
 	})
 

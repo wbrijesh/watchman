@@ -2,7 +2,7 @@ package schema
 
 import "github.com/golang-jwt/jwt/v5"
 
-type Response_Type struct {
+type ResponseType struct {
 	Data      interface{} `json:"data,omitempty"`
 	Status    string      `json:"status"`
 	Message   string      `json:"message"`
@@ -20,7 +20,7 @@ type ConfigType struct {
 	} `yaml:"admin"`
 	JwtKey                     string `yaml:"jwt_key"`
 	Port                       int    `yaml:"port"`
-	RateLimitRequestsPerSecond int    "yaml:\"rate_limit_req_per_sec\""
+	RateLimitRequestsPerSecond int    `yaml:"rate_limit_req_per_sec"`
 }
 
 type User struct {

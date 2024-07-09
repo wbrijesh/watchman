@@ -69,7 +69,7 @@ func Ratelimit(config schema.ConfigType, next http.Handler) http.Handler {
 
 		limiter := getVisitor(ip, config)
 		if !limiter.Allow() {
-			response := schema.Response_Type{
+			response := schema.ResponseType{
 				Status:    "ERROR",
 				Message:   "You made too many requests",
 				RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

@@ -49,7 +49,7 @@ func CreateProjectKey(w http.ResponseWriter, r *http.Request, db *sql.DB, Projec
 	_, err = stmt.Exec(ProjectID, AccessKey, SecretKey, ProjectKey.Expiry)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project key created successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -70,7 +70,7 @@ func DeleteProjectKey(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	_, err = stmt.Exec(ProjectKey.AccessKey, ProjectKey.SecretKey)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project key deleted successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

@@ -6,12 +6,12 @@ import (
 	"watchman/schema"
 )
 
-func Health_Check_Handler(w http.ResponseWriter, r *http.Request) {
+func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func Method_Not_Allowed_Handler(w http.ResponseWriter, r *http.Request) {
-	response := schema.Response_Type{
+func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+	response := schema.ResponseType{
 		Status:    "ERROR",
 		Message:   "Method Not Allowed",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

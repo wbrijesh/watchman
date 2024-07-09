@@ -7,7 +7,7 @@ import (
 
 func HandleError(w http.ResponseWriter, r *http.Request, statusCode int, message string, err error) {
 	w.WriteHeader(statusCode)
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "ERROR",
 		Message:   message + err.Error(),
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

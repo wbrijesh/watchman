@@ -30,7 +30,7 @@ func BatchInsertLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		utils.HandleError(w, r, http.StatusInternalServerError, "Error inserting into database: ", err)
 	}
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Logs created successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -84,7 +84,7 @@ func GetLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Logs retrieved successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -135,7 +135,7 @@ func DeleteLogs(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	_, err = stmt.Exec()
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Logs deleted successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

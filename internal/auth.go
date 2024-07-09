@@ -13,7 +13,7 @@ import (
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodPost)
 
-	config := utils.Read_Config()
+	config := utils.ReadConfig()
 
 	var user schema.User
 	decoder := json.NewDecoder(r.Body)
@@ -23,7 +23,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Username != config.Admin.Username || user.Password != config.Admin.Password {
-		response := schema.Response_Type{
+		response := schema.ResponseType{
 			Status:    "ERROR",
 			Message:   "Invalid credentials",
 			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -54,7 +54,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		Expires: expirationTime,
 	})
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Login successful",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),

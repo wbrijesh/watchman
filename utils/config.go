@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Read_Config() schema.ConfigType {
+func ReadConfig() schema.ConfigType {
 	var Config schema.ConfigType
 
 	yamlFile, err := os.ReadFile("config.yaml")

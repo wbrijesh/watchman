@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"watchman/schema"
 	"watchman/utils"
+
+	"github.com/google/uuid"
 )
 
 func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -17,7 +19,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	utils.HandleError(w, r, http.StatusBadRequest, "Error decoding JSON: ", err)
 
 	if project.ID == "" {
-		project.ID = utils.Generate_UUID()
+		project.ID = uuid.New().String()
 	}
 
 	stmt, err := db.Prepare("INSERT INTO Projects (ID, Name) VALUES (?, ?)")
@@ -27,7 +29,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	_, err = stmt.Exec(project.ID, project.Name)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project created successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -43,7 +45,7 @@ func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectI
 	err := row.Scan(&projectByID.ID, &projectByID.Name)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error querying database: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project retrieved successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -66,7 +68,7 @@ func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		utils.HandleError(w, r, http.StatusInternalServerError, "Error scanning row: ", err)
 		projects = append(projects, project)
 	}
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Projects retrieved successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -90,7 +92,7 @@ func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, proje
 	_, err = stmt.Exec(project.Name, project.ID, projectID)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project updated successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
@@ -108,7 +110,7 @@ func DeleteProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, proje
 	_, err = stmt.Exec(projectID)
 	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
 
-	response := schema.Response_Type{
+	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project deleted successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
