@@ -2,6 +2,7 @@ CREATE TABLE Projects (
   ID TEXT PRIMARY KEY,
   Name TEXT NOT NULL
 );
+
 CREATE TABLE Logs (
   Time INTEGER NOT NULL,
   Level TEXT NOT NULL,
@@ -11,6 +12,7 @@ CREATE TABLE Logs (
   ProjectID TEXT NOT NULL,
   FOREIGN KEY (ProjectID) REFERENCES Project(ID)
 );
+
 CREATE TABLE ProjectKeys (
     ProjectID TEXT NOT NULL,
     AccessKey TEXT NOT NULL,

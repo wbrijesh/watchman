@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 	"watchman/schema"
@@ -10,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (s *Server) CreateProjectHandler(w http.ResponseWriter, r *http.Request) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodPost)
 
 	var project schema.Project
@@ -22,12 +21,8 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		project.ID = uuid.New().String()
 	}
 
-	stmt, err := db.Prepare("INSERT INTO Projects (ID, Name) VALUES (?, ?)")
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error preparing statement: ", err)
-	defer stmt.Close()
-
-	_, err = stmt.Exec(project.ID, project.Name)
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
+	err = s.db.CreateProject(project)
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error creating project: ", err)
 
 	response := schema.ResponseType{
 		Status:    "OK",
@@ -37,37 +32,27 @@ func CreateProject(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	utils.SendResponse(w, r, response)
 }
 
-func GetProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
+func (s *Server) GetProjectByIDHandler(w http.ResponseWriter, r *http.Request, projectID string) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodGet)
 
-	row := db.QueryRow("SELECT * FROM Projects WHERE ID = ?", projectID)
-	var projectByID schema.Project
-	err := row.Scan(&projectByID.ID, &projectByID.Name)
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error querying database: ", err)
+	project, err := s.db.GetProjectByID(projectID)
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error retrieving project: ", err)
 
 	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Project retrieved successfully",
 		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-		Data:      projectByID,
+		Data:      project,
 	}
 	utils.SendResponse(w, r, response)
 }
 
-func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func (s *Server) ListAllProjectsHandler(w http.ResponseWriter, r *http.Request) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodGet)
 
-	rows, err := db.Query("SELECT * FROM Projects")
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error querying database: ", err)
-	defer rows.Close()
+	projects, err := s.db.ListAllProjects()
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error retreiving projects: ", err)
 
-	var projects []schema.Project
-	for rows.Next() {
-		var project schema.Project
-		err := rows.Scan(&project.ID, &project.Name)
-		utils.HandleError(w, r, http.StatusInternalServerError, "Error scanning row: ", err)
-		projects = append(projects, project)
-	}
 	response := schema.ResponseType{
 		Status:    "OK",
 		Message:   "Projects retrieved successfully",
@@ -77,7 +62,7 @@ func ListAllProjects(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	utils.SendResponse(w, r, response)
 }
 
-func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
+func (s *Server) UpdateProjectByIDHandler(w http.ResponseWriter, r *http.Request, projectID string) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodPut)
 
 	var project schema.Project
@@ -85,12 +70,8 @@ func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, proje
 	err := decoder.Decode(&project)
 	utils.HandleError(w, r, http.StatusBadRequest, "Error decoding JSON: ", err)
 
-	stmt, err := db.Prepare("UPDATE Projects SET Name = ?, ID = ? WHERE ID = ?")
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error preparing statement: ", err)
-	defer stmt.Close()
-
-	_, err = stmt.Exec(project.Name, project.ID, projectID)
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
+	err = s.db.UpdateProjectByID(projectID, project)
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error updating project: ", err)
 
 	response := schema.ResponseType{
 		Status:    "OK",
@@ -100,15 +81,11 @@ func UpdateProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, proje
 	utils.SendResponse(w, r, response)
 }
 
-func DeleteProjectByID(w http.ResponseWriter, r *http.Request, db *sql.DB, projectID string) {
+func (s *Server) DeleteProjectByIDHandler(w http.ResponseWriter, r *http.Request, projectID string) {
 	utils.HandleMethodNotAllowed(w, r, http.MethodDelete)
 
-	stmt, err := db.Prepare("DELETE FROM Projects WHERE ID = ?")
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error preparing statement: ", err)
-	defer stmt.Close()
-
-	_, err = stmt.Exec(projectID)
-	utils.HandleError(w, r, http.StatusInternalServerError, "Error executing statement: ", err)
+	err := s.db.DeleteProjectByID(projectID)
+	utils.HandleError(w, r, http.StatusInternalServerError, "Error deleting project: ", err)
 
 	response := schema.ResponseType{
 		Status:    "OK",

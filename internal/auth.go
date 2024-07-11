@@ -42,16 +42,21 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(config.JwtKey)
+	tokenString, err := token.SignedString([]byte(config.JwtKey))
 	if err != nil {
 		utils.HandleError(w, r, http.StatusInternalServerError, "Error signing token: ", err)
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
-		Value:   tokenString,
-		Expires: expirationTime,
+		Name:     "token",
+		Value:    tokenString,
+		Path:     "/",
+		Expires:  expirationTime,
+		MaxAge:   1800,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	response := schema.ResponseType{
