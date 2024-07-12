@@ -11,23 +11,10 @@ I am writing Watchman to meet my own needs, and it is currently under developmen
 
 == Current limitations:
 
-* Incomplete client (no authentication)
+* Incomplete client library (missing authentication)
 * Missing log file rotation and log expiration
 
-== System Requirements
+== Installation Instructions:
 
-Watchman has a small footprint and should run on most systems, but here are suggested requirements:
-
-* 256 MB Memory 
-* 1 vCPU
-* 500 MB Free Disk Space
-* Any GNU/Linux distribution with systemd
-* Go lang 1.22 or higher
-* sqlite3 3.46.0 or higher
-
-> Above requirements assume that you are only running watchman's server on the server and running frontend on a seperate server.
-
-=== API Documentation
-
-API Endpoints along with usage examples are documented in link:./API.adoc[API.adoc] file.
-
+Running Watchman can be as simple as running "go run main.go", but if you want to
+run it as intended, you should follow the instructions at link:./Installation.adoc[Installation.adoc] file.

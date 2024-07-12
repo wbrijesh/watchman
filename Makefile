@@ -11,3 +11,6 @@ run-server:
 run-frontend:
 	cd frontend && git pull origin master
 	bun run dev
+
+build: 
+	go build -o watchman main.go

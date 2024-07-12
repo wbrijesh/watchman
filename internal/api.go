@@ -12,19 +12,16 @@ import (
 )
 
 type Server struct {
-	db   database.DBService
-	port int
+	db database.DBService
 }
 
 func NewServer() *http.Server {
 	NewServer := &Server{
-		port: utils.ReadConfig().Port,
-
 		db: database.New(),
 	}
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
+		Addr:         fmt.Sprintf(":%d", utils.ReadConfig().Port),
 		Handler:      middleware.ApplyMiddleware(NewServer.RegisterRoutes()),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -37,7 +34,18 @@ func NewServer() *http.Server {
 func (s *Server) RegisterRoutes() http.Handler {
 	multiplexer := http.NewServeMux()
 
-	multiplexer.HandleFunc("/health", s.healthHandler)
+	multiplexer.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		utils.SendResponse(w, r, schema.ResponseType{
+			Status:    "OK",
+			Message:   "Health check successful",
+			RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
+			Data:      s.db.Health(),
+		})
+	})
+
+	multiplexer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		utils.HandleError(w, r, http.StatusNotFound, "Sorry, ", fmt.Errorf("api route "+r.URL.Path+" could not be found"))
+	})
 
 	multiplexer.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -86,13 +94,4 @@ func (s *Server) RegisterRoutes() http.Handler {
 	multiplexer.HandleFunc("/login", AdminLogin)
 
 	return multiplexer
-}
-
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	utils.SendResponse(w, r, schema.ResponseType{
-		Status:    "OK",
-		Message:   "Health check successful",
-		RequestID: r.Context().Value(schema.RequestIDKey{}).(string),
-		Data:      s.db.Health(),
-	})
 }

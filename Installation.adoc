@@ -1,0 +1,132 @@
+= Installation instructions
+
+This guide assumes you are using Linux for deploying Watchman and are
+comfortable with using the command line.
+
+____
+If you are using Linux with OpenRC, or other OS like BSD distributions you should be
+following same steps changing service manager with rcctl, OpenRC or whatever
+service manager your OS uses. I will be using Systemctl in this
+guide.
+____
+
+
+== System Requirements
+
+Watchman is designed for usage with side projects and so it is important
+that it is lightweight.
+
+While it is possible to run Watchman on most computers, these are
+recommended system requirements:
+
+- 512 MB RAM
+- 1 CPU Core
+- 500 MB Disk Space
+
+== Pre-requisites
+
+Watchman requires these dependencies to be installed on your computer:
+
+- Go 1.22 or later
+- SQLite3
+
+== Installation
+
+Follow these steps to install Watchman:
+
+=== Create watchman group and user:
+
+[source,bash]
+----
+sudo groupadd watchman
+sudo useradd -m -d /home/watchman -s /bin/bash -g watchman watchman
+
+# Set password for the new user
+sudo passwd watchman
+
+# Change ownership of the home directory
+sudo chown -R watchman:watchman /home/watchman
+
+# Switch to the new user
+su - watchman
+
+# Create bin for this user and add it to PATH
+mkdir /home/watchman/bin
+echo 'export PATH=$PATH:/home/watchman/bin' >> ~/.bashrc
+source ~/.bashrc
+----
+
+=== Build watchman from source:
+
+[source,bash]
+----
+# Clone the repository
+git clone <git@brijesh.dev>/watchman.git
+cd watchman
+
+# Build the binary
+go mod tidy
+go build -o watchman main.go
+
+# Move the binary to the bin directory
+mv watchman /home/watchman/bin
+----
+
+=== Create systemd config file:
+
+[source,bash]
+----
+touch /etc/systemd/system/watchman.service
+mkdir -p ~/.config/watchman
+cp /home/watchman/watchman/config.yaml ~/.config/watchman/config.yaml
+----
+
+Add the following content to the file:
+....
+[Unit]
+Description="Watchman Service"
+User=watchman
+Group=watchman
+Documentation=<https://brijesh.dev/watchman>
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/home/watchman/bin/watchman
+
+[Install]
+WantedBy=multi-user.target
+....
+
+=== Start and enable the service:
+
+[source,bash]
+----
+sudo systemctl daemon-reload
+sudo systemctl start watchman.service
+sudo systemctl enable watchman.service
+----
+---
+
+== Server Hardening
+
+If you’ve followed the steps so far, you’re already done installing
+Watchman and can start using it. However, I recommend you to follow
+these additional steps to make your server slightly more secure:
+
+____
+I have not included detailed instructions for these steps, as it would
+make this guide too long. You can find detailed instructions for each
+step on the internet.
+____
+
+
+
+. Disable root login
+. Replace password authentication with SSH key authentication
+. Use `ufw` or another firewall to block unwanted traffic
+. Use `fail2ban` to block brute-force attacks
+. Write a cron job to update the system packages regularly
